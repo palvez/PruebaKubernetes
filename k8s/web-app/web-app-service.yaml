@@ -1,0 +1,14 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name:  web-app-service
+  labels:
+    application: web-app
+spec:
+  selector:
+    application: web-app
+  type:  NodePort
+  ports:
+  - name:  web-app-external-port
+    port:  80
+    nodePort:  30200

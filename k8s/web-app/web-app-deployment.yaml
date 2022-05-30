@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app-deployment
+spec:
+  selector:
+   matchLabels:
+    application: web-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        application: web-app
+    spec:
+      containers:
+        - name: web-app
+          image: pabloalvez98/php-app:v1
+          ports:
+            - containerPort: 80
+              name: web-app-port
+          envFrom:
+          - secretRef:
+              name: web-app-secret
+          volumeMounts:
+            - mountPath: /var/www/html/img/uploads
+              name: web-app-img
+      volumes:
+        - name: web-app-img
+          persistentVolumeClaim:
+            claimName: web-app-claim
