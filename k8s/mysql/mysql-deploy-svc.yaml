@@ -1,0 +1,64 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name:  mysql-service
+spec:
+  selector:
+    application: mysql
+  #type:  ClusterIP
+  clusterIP: None
+  ports:
+  - name:  mysql-internal-port
+    port:  3306
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-deployment
+spec:
+  selector:
+   matchLabels:
+    application: mysql
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        application: mysql
+    spec:
+      containers:
+      - name: mysqldb
+        image: mysql:5.6
+        ports:
+          - containerPort: 3306
+        envFrom:
+          - secretRef:
+              name: mysql-secret
+        volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: mysqldb
+            - mountPath: /docker-entrypoint-initdb.d/
+              name : mysql-dump
+        resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 200m
+              memory: 250Mi
+        readinessProbe:
+          tcpSocket:
+            port: 3306
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        livenessProbe:
+          tcpSocket:
+            port: 3306
+          initialDelaySeconds: 15
+          periodSeconds: 20
+      volumes:
+        - name: mysqldb
+          persistentVolumeClaim:
+            claimName: mysql-claim
+        - name: mysql-dump
+          configMap:
+             name: mysql-configmap

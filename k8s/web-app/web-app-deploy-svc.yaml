@@ -1,0 +1,64 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name:  web-app-service
+  labels:
+    application: web-app
+spec:
+  selector:
+    application: web-app
+  type:  ClusterIP
+  ports:
+  - name:  web-app-external-port
+    port:  8080
+    targetPort: 80
+    
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-app-deployment
+spec:
+  selector:
+   matchLabels:
+    application: web-app
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        application: web-app
+    spec:
+      containers:
+        - name: web-app
+          image: pabloalvez98/php-app:v1
+          ports:
+            - containerPort: 80
+              name: web-app-port
+          envFrom:
+          - secretRef:
+              name: web-app-secret
+          volumeMounts:
+            - mountPath: /var/www/html/img/uploads
+              name: web-app-img
+          resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 200m
+              memory: 200Mi
+          livenessProbe:
+            httpGet:
+              path: /index.php
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 3
+          readinessProbe:
+            tcpSocket:
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+      volumes:
+        - name: web-app-img
+          persistentVolumeClaim:
+            claimName: web-app-claim
