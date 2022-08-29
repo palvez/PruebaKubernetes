@@ -25,6 +25,23 @@ spec:
               name: mysqldb
             - mountPath: /docker-entrypoint-initdb.d/
               name : mysql-dump
+        resources:
+            limits:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 200m
+              memory: 250Mi
+        readinessProbe:
+          tcpSocket:
+            port: 3306
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        livenessProbe:
+          tcpSocket:
+            port: 3306
+          initialDelaySeconds: 15
+          periodSeconds: 20
       volumes:
         - name: mysqldb
           persistentVolumeClaim:

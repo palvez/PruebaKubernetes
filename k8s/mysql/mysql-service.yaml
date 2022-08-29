@@ -2,12 +2,11 @@ kind: Service
 apiVersion: v1
 metadata:
   name:  mysql-service
-  labels:
-    application: mysql
 spec:
   selector:
     application: mysql
-  type:  NodePort
+  #type:  ClusterIP
+  clusterIP: None
   ports:
   - name:  mysql-internal-port
     port:  3306

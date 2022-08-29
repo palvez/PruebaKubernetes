@@ -7,8 +7,9 @@ metadata:
 spec:
   selector:
     application: web-app
-  type:  NodePort
+  type:  ClusterIP
   ports:
   - name:  web-app-external-port
-    port:  80
-    nodePort:  30200
+    port:  8080
+    targetPort: 80
+    
